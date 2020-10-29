@@ -12,10 +12,11 @@ import akka.stream.scaladsl.{Sink, Source}
 import com.codahale.metrics.MetricRegistry
 import com.daml.daml_lf_dev.DamlLf
 import com.daml.ledger.api.testing.utils.AkkaBeforeAndAfterAll
-import com.daml.ledger.participant.state.kvutils.KVOffset.{fromLong => toOffset}
+import com.daml.ledger.participant.state.kvutils.OffsetBuilder.{fromLong => toOffset}
 import com.daml.ledger.participant.state.kvutils.ParticipantStateIntegrationSpecBase._
 import com.daml.ledger.participant.state.v1.Update._
 import com.daml.ledger.participant.state.v1._
+import com.daml.ledger.resources.{ResourceContext, ResourceOwner}
 import com.daml.lf.archive.{Dar, DarReader}
 import com.daml.lf.crypto
 import com.daml.lf.data.Time.Timestamp
@@ -25,14 +26,12 @@ import com.daml.lf.transaction.{Transaction => Tx}
 import com.daml.logging.LoggingContext
 import com.daml.logging.LoggingContext.newLoggingContext
 import com.daml.metrics.Metrics
-import com.daml.platform.common.LedgerIdMismatchException
-import com.daml.resources.ResourceOwner
+import com.daml.platform.common.MismatchException
 import org.scalatest.Inside._
 import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AsyncWordSpec
 import org.scalatest.{Assertion, BeforeAndAfterEach}
 
-import scala.collection.immutable.HashMap
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,8 +39,9 @@ import scala.util.Try
 
 //noinspection DuplicatedCode
 abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
-    implicit testExecutionContext: ExecutionContext = ExecutionContext.global
+  implicit testExecutionContext: ExecutionContext = ExecutionContext.global
 ) extends AsyncWordSpec
+    with TestResourceContext
     with BeforeAndAfterEach
     with AkkaBeforeAndAfterAll {
 
@@ -326,7 +326,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
             .submitTransaction(
               submitterInfo(rt, alice),
               transactionMeta(rt),
-              emptyTransaction,
+              TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
             )
             .toScala
@@ -347,7 +347,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
             .submitTransaction(
               submitterInfo(rt, alice, commandIds._1),
               transactionMeta(rt),
-              emptyTransaction,
+              TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
             )
             .toScala
@@ -357,7 +357,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
             .submitTransaction(
               submitterInfo(rt, alice, commandIds._1),
               transactionMeta(rt),
-              emptyTransaction,
+              TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
             )
             .toScala
@@ -367,7 +367,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
             .submitTransaction(
               submitterInfo(rt, alice, commandIds._2),
               transactionMeta(rt),
-              emptyTransaction,
+              TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
             )
             .toScala
@@ -400,7 +400,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
             .submitTransaction(
               submitterInfo(rt, alice, "X1"),
               transactionMeta(rt),
-              emptyTransaction,
+              TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
             )
             .toScala
@@ -409,7 +409,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
             .submitTransaction(
               submitterInfo(rt, alice, "X2"),
               transactionMeta(rt),
-              emptyTransaction,
+              TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
             )
             .toScala
@@ -443,7 +443,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
             .submitTransaction(
               submitterInfo(rt, unallocatedParty),
               transactionMeta(rt),
-              emptyTransaction,
+              TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
             )
             .toScala
@@ -470,7 +470,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
             .submitTransaction(
               submitterInfo(rt, party = newParty),
               transactionMeta(rt),
-              emptyTransaction,
+              TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
             )
             .toScala
@@ -656,10 +656,10 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
             Future.unit
           }.failed
         } yield {
-          exception should be(a[LedgerIdMismatchException])
-          val mismatchException = exception.asInstanceOf[LedgerIdMismatchException]
-          mismatchException.existingLedgerId should be(ledgerId)
-          mismatchException.providedLedgerId should be(attemptedLedgerId)
+          exception should be(a[MismatchException.LedgerId])
+          val mismatchException = exception.asInstanceOf[MismatchException.LedgerId]
+          mismatchException.existing should be(ledgerId)
+          mismatchException.provided should be(attemptedLedgerId)
         }
       }
 
@@ -710,9 +710,6 @@ object ParticipantStateIntegrationSpecBase {
   type ParticipantState = ReadService with WriteService
 
   private val IdleTimeout: FiniteDuration = 5.seconds
-
-  private val emptyTransaction: SubmittedTransaction =
-    Tx.SubmittedTransaction(TransactionBuilder.Empty)
 
   private val dummyEstimatedTransactionCost = 0L
 
@@ -771,4 +768,12 @@ object ParticipantStateIntegrationSpecBase {
       case TransactionAccepted(Some(SubmitterInfo(_, _, actualCommandId, _)), _, _, _, _, _) =>
         actualCommandId should be(expectedCommandId)
     }
+}
+
+import org.scalatest.AsyncTestSuite
+
+trait TestResourceContext {
+  self: AsyncTestSuite =>
+
+  protected implicit val resourceContext: ResourceContext = ResourceContext(executionContext)
 }

@@ -19,7 +19,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 final private class FabricLedgerStateAccess() extends LedgerStateAccess[Index] {
   val fabricConn: DAMLKVConnector = DAMLKVConnector.get
-  override def inTransaction[T](body: LedgerStateOperations[Index] => Future[T]): Future[T] = ???
+  override def inTransaction[T](body: LedgerStateOperations[Index] => Future[T])(implicit executionContext: ExecutionContext): Future[T] = ???
   //TODO BH: implement me
 //    state.write { (log, state) =>
 //      body(new TimedLedgerStateOperations(new FabricLedgerStateOperations(log, state), metrics))
@@ -28,7 +28,7 @@ final private class FabricLedgerStateAccess() extends LedgerStateAccess[Index] {
 final private class FabricLedgerStateOperations(fabricConn: DAMLKVConnector)(
     implicit executionContext: ExecutionContext
 ) extends NonBatchingLedgerStateOperations[Index] {
-  override def readState(key: Key): Future[Option[Value]] = {
+  override def readState(key: Key)(implicit executionContext: ExecutionContext): Future[Option[Value]] = {
     Future {
       val entryBytes = fabricConn.getValue(key.toByteArray)
       if (entryBytes == null || entryBytes.isEmpty)
@@ -39,10 +39,10 @@ final private class FabricLedgerStateOperations(fabricConn: DAMLKVConnector)(
     }
   }
 
-  override def writeState(key: Key, value: Value): Future[Unit] =
+  override def writeState(key: Key, value: Value)(implicit executionContext: ExecutionContext): Future[Unit] =
     Future(fabricConn.putValue(key.toByteArray, value.toByteArray))
 
-  override def appendToLog(key: Key, value: Value): Future[Index] = ???
+  override def appendToLog(key: Key, value: Value)(implicit executionContext: ExecutionContext): Future[Index] = ???
 }
 
 object FabricParticipantState {

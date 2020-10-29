@@ -18,7 +18,7 @@ import com.daml.ledger.api.health.{HealthStatus, Healthy}
 import com.daml.ledger.participant.state.kvutils.DamlKvutils._
 import com.daml.ledger.participant.state.kvutils.{
   Envelope,
-  KVOffset,
+  OffsetBuilder,
   KeyValueCommitting,
   KeyValueConsumption,
   KeyValueSubmission,
@@ -165,7 +165,8 @@ class FabricParticipantState(
           )
 
           // Process the submission to produce the log entry and the state updates.
-          val (logEntry, damlStateUpdates) = keyValueCommitting.processSubmission(
+          val (logEntry, damlStateUpdates) =
+            keyValueCommitting.processSubmission(
             entryId,
             newRecordTime,
             ledgerConfig,
@@ -185,7 +186,7 @@ class FabricParticipantState(
           val allUpdates =
             damlStateUpdates.map {
               case (k, v) =>
-                NS_DAML_STATE.concat(keyValueCommitting.packDamlStateKey(k)) ->
+                NS_DAML_STATE.concat(k.toByteString) ->
                   Envelope.enclose(v)
             } + (entryId.getEntryId -> Envelope.enclose(logEntry))
 
@@ -353,7 +354,7 @@ class FabricParticipantState(
     dispatcher
       .startingAt(
         beginAfter
-          .map(KVOffset.highestIndex(_).toInt)
+          .map(OffsetBuilder.highestIndex(_).toInt)
           .getOrElse(StartIndex), // this get index from commitHeight of fabric network
         //            .getOrElse(StartIndex),
         //          check if we need this for recovery cases, also deal with it being larger than 0
@@ -365,11 +366,11 @@ class FabricParticipantState(
       .collect {
         case (off, updates) =>
           val updateOffset: (Offset, Int) => Offset =
-            if (updates.size > 1) KVOffset.setMiddleIndex else (offset, _) => offset
+            if (updates.size > 1) OffsetBuilder.setMiddleIndex else (offset, _) => offset
           updates.zipWithIndex.map {
             //TODO BH: index is always 0 : expected?
             case (update, index) =>
-              updateOffset(KVOffset.fromLong(off.toLong), index.toInt) -> update
+              updateOffset(OffsetBuilder.fromLong(off.toLong), index.toInt) -> update
           }
       }
       .mapConcat(identity)
@@ -401,7 +402,8 @@ class FabricParticipantState(
   override def submitTransaction(
       submitterInfo: SubmitterInfo,
       transactionMeta: TransactionMeta,
-      transaction: SubmittedTransaction
+      transaction: SubmittedTransaction,
+      estimatedInterpretationCost: Long
   ): CompletionStage[SubmissionResult] =
     CompletableFuture.completedFuture({
       // Construct a [[DamlSubmission]] message using the key-value utilities.
@@ -491,7 +493,7 @@ class FabricParticipantState(
 
     lazy val valueFromFabric = {
       lazy val entryBytes: Array[Byte] = fabricConn.getValue(
-        NS_DAML_STATE.concat(keyValueCommitting.packDamlStateKey(key)).toByteArray
+        NS_DAML_STATE.concat(key.toByteString).toByteArray
       )
       if (entryBytes == null || entryBytes.isEmpty)
         None

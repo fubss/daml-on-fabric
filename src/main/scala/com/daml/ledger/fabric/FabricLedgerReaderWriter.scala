@@ -9,13 +9,13 @@ import com.daml.DAMLKVConnector
 import com.daml.api.util.TimeProvider
 import com.daml.ledger.api.health.HealthStatus
 import com.daml.ledger.participant.state.kvutils.Bytes
-import com.daml.ledger.participant.state.kvutils.api.{LedgerReader, LedgerRecord, LedgerWriter}
+import com.daml.ledger.participant.state.kvutils.api.{CommitMetadata, LedgerReader, LedgerRecord, LedgerWriter}
 import com.daml.ledger.participant.state.v1.{LedgerId, Offset, ParticipantId, SubmissionResult}
+import com.daml.ledger.resources.ResourceOwner
 import com.daml.ledger.validator.{SubmissionValidator, ValidatingCommitter}
 import com.daml.lf.engine.Engine
 import com.daml.metrics.Metrics
 import com.daml.platform.akkastreams.dispatcher.Dispatcher
-import com.daml.resources.ResourceOwner
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -50,7 +50,7 @@ class FabricLedgerReaderWriter(
     dispatcher.signalNewHead
   )
 
-  override def commit(correlationId: String, envelope: Bytes): Future[SubmissionResult] =
+  override def commit(correlationId: String, envelope: Bytes, metadata: CommitMetadata): Future[SubmissionResult] =
     committer.commit(correlationId, envelope, participantId)
 }
 

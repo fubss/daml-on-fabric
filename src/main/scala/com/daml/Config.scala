@@ -5,6 +5,7 @@ package com.daml
 
 import java.io.File
 import java.nio.file.Path
+import java.time.Duration
 
 import com.daml.ledger.participant.state.v1
 import com.daml.ledger.participant.state.v1.ParticipantId
@@ -14,6 +15,7 @@ import com.daml.ledger.participant.state.v1.SeedService.Seeding
 import com.daml.platform.indexer.IndexerStartupMode
 import com.daml.ports.Port
 import com.daml.ledger.api.auth.{AuthService, AuthServiceWildcard}
+import com.daml.ledger.participant.state.kvutils.app.ParticipantConfig
 import com.daml.platform.configuration.IndexConfiguration
 
 final case class Config(
@@ -36,7 +38,8 @@ final case class Config(
     roleProvision: Boolean,
     roleExplorer: Boolean,
     authService: AuthService,
-    seeding: Seeding
+    seeding: Seeding,
+    managementServiceTimeout: Duration
 ) {
   def withTlsConfig(modify: TlsConfiguration => TlsConfiguration): Config =
     copy(tlsConfig = Some(modify(tlsConfig.getOrElse(TlsConfiguration.Empty))))
@@ -66,6 +69,7 @@ object Config {
       roleProvision = false,
       roleExplorer = false,
       authService = AuthServiceWildcard,
-      seeding = Seeding.Weak
+      seeding = Seeding.Weak,
+      managementServiceTimeout = ParticipantConfig.defaultManagementServiceTimeout
     )
 }

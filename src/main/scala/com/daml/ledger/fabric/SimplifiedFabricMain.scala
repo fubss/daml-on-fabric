@@ -7,12 +7,13 @@ import akka.stream.Materializer
 import com.daml.DAMLKVConnector
 import com.daml.ledger.participant.state.kvutils.app._
 import com.daml.ledger.participant.state.v1.SeedService.Seeding
+import com.daml.ledger.resources.{ResourceContext, ResourceOwner}
 import com.daml.lf.engine.Engine
 import com.daml.logging.LoggingContext
 import com.daml.logging.LoggingContext.newLoggingContext
 import com.daml.platform.akkastreams.dispatcher.Dispatcher
 import com.daml.platform.apiserver.ApiServerConfig
-import com.daml.resources.{ProgramResource, ResourceOwner}
+import com.daml.resources.ProgramResource
 import org.slf4j.{Logger, LoggerFactory}
 import scopt.OptionParser
 
@@ -28,7 +29,7 @@ object SimplifiedFabricMain {
       factory = new FabricLedgerFactory(dispatcher)
       runner <- new Runner("daml-on-fabric", factory).owner(args)
     } yield runner
-    new ProgramResource(resourceOwner).run()
+    new ProgramResource(resourceOwner).run(ResourceContext.apply)
   }
 
   final class FabricLedgerFactory(dispatcher: Dispatcher[Index])
@@ -59,7 +60,7 @@ object SimplifiedFabricMain {
 
         for {
           ledger <- new FabricKeyValueLedger.Owner(
-            config.ledgerId,
+            Option(config.ledgerId),
             participantConfig.participantId,
             dispatcher = dispatcher,
             metrics = metrics,

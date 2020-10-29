@@ -6,18 +6,15 @@ package com.daml.ledger.fabric
 import java.util.UUID
 
 import akka.stream.Materializer
-import com.daml.DAMLKVConnector
 import com.daml.api.util.TimeProvider
 import com.daml.ledger.participant.state.kvutils.api.KeyValueParticipantState
 import com.daml.ledger.participant.state.kvutils.app.ReadWriteService
 import com.daml.ledger.participant.state.v1.{LedgerId, ParticipantId}
+import com.daml.ledger.resources.{Resource, ResourceContext, ResourceOwner}
 import com.daml.lf.data.Ref
 import com.daml.lf.engine.Engine
 import com.daml.metrics.Metrics
 import com.daml.platform.akkastreams.dispatcher.Dispatcher
-import com.daml.resources.{Resource, ResourceOwner}
-
-import scala.concurrent.ExecutionContext
 
 object FabricKeyValueLedger {
 
@@ -32,7 +29,7 @@ object FabricKeyValueLedger {
   )(implicit materializer: Materializer)
       extends ResourceOwner[ReadWriteService] {
     override def acquire()(
-        implicit executionContext: ExecutionContext
+        implicit resourceContext: ResourceContext
     ): Resource[ReadWriteService] = {
 
       val ledgerId =
