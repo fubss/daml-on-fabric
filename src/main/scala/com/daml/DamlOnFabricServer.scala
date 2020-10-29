@@ -13,13 +13,22 @@ import com.codahale.metrics.SharedMetricRegistries
 import com.daml.daml_lf_dev.DamlLf.Archive
 import com.daml.ledger.api.health.HealthChecks
 import com.daml.ledger.participant.state.v1.metrics.{TimedReadService, TimedWriteService}
-import com.daml.ledger.participant.state.v1.{Configuration, SubmissionId, TimeModel, WritePackagesService}
+import com.daml.ledger.participant.state.v1.{
+  Configuration,
+  SubmissionId,
+  TimeModel,
+  WritePackagesService
+}
 import com.daml.lf.archive.DarReader
 import com.daml.lf.engine.{Engine, EngineConfig}
 import com.daml.logging.LoggingContext.newLoggingContext
 import com.daml.metrics.{JvmMetricSet, Metrics}
 import com.daml.platform.apiserver.{ApiServerConfig, StandaloneApiServer}
-import com.daml.platform.configuration.{CommandConfiguration, LedgerConfiguration, PartyConfiguration}
+import com.daml.platform.configuration.{
+  CommandConfiguration,
+  LedgerConfiguration,
+  PartyConfiguration
+}
 import com.daml.platform.indexer.{IndexerConfig, StandaloneIndexerServer}
 import com.daml.platform.store.dao.events.LfValueTranslation
 import com.daml.ledger.resources.{Resource, ResourceContext, ResourceOwner}
@@ -66,7 +75,6 @@ object DamlOnFabricServer extends App {
     override def acquire()(implicit context: ResourceContext): Resource[Unit] = {
 
       newLoggingContext { implicit loggingContext =>
-
         implicit val actorSystem: ActorSystem = ActorSystem("DamlonFabricServer")
         implicit val materializer: Materializer = Materializer(actorSystem)
 
@@ -144,7 +152,7 @@ object DamlOnFabricServer extends App {
                 authService = authService,
                 healthChecks = new HealthChecks(
                   "read" -> new TimedReadService(ledger, metrics),
-                  "write" -> new TimedWriteService(ledger, metrics),
+                  "write" -> new TimedWriteService(ledger, metrics)
                 ),
                 metrics = metrics,
                 engine = sharedEngine,

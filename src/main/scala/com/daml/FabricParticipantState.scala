@@ -167,20 +167,20 @@ class FabricParticipantState(
           // Process the submission to produce the log entry and the state updates.
           val (logEntry, damlStateUpdates) =
             keyValueCommitting.processSubmission(
-            entryId,
-            newRecordTime,
-            ledgerConfig,
-            submission,
-            participantId,
-            submission.getInputDamlStateList.asScala
-              .map(key => {
-                val maybeValue: Option[DamlStateValue] = getDamlState(key)
-                maybeValue.foreach(
-                  value => if (value.hasArchive || value.hasParty) stateCache.put(key, value)
-                )
-                key -> maybeValue
-              })(breakOut)
-          )
+              entryId,
+              newRecordTime,
+              ledgerConfig,
+              submission,
+              participantId,
+              submission.getInputDamlStateList.asScala
+                .map(key => {
+                  val maybeValue: Option[DamlStateValue] = getDamlState(key)
+                  maybeValue.foreach(
+                    value => if (value.hasArchive || value.hasParty) stateCache.put(key, value)
+                  )
+                  key -> maybeValue
+                })(breakOut)
+            )
 
           // Combine the abstract log entry and the state updates into concrete updates to the store.
           val allUpdates =

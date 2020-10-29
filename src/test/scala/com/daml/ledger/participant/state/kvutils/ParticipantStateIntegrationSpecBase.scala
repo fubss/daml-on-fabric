@@ -39,7 +39,7 @@ import scala.util.Try
 
 //noinspection DuplicatedCode
 abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
-  implicit testExecutionContext: ExecutionContext = ExecutionContext.global
+    implicit testExecutionContext: ExecutionContext = ExecutionContext.global
 ) extends AsyncWordSpec
     with TestResourceContext
     with BeforeAndAfterEach
@@ -775,5 +775,5 @@ import org.scalatest.AsyncTestSuite
 trait TestResourceContext {
   self: AsyncTestSuite =>
 
-  protected implicit val resourceContext: ResourceContext = ResourceContext(executionContext)
+  implicit protected val resourceContext: ResourceContext = ResourceContext(executionContext)
 }
