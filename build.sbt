@@ -8,7 +8,7 @@ ThisBuild / organizationName := "Digital Asset. LLC"
 //TODO BH: run old fabric main until simplified api is fully wired
 ThisBuild / mainClass := Some("com.daml.DamlOnFabricServer")
 
-lazy val sdkVersion = "0.0.0"
+lazy val sdkVersion = "1.7.0-snapshot.20201027.5530.0.bdbf8977"
 lazy val akkaVersion = "2.6.1"
 lazy val logbackVersion = "1.2.3"
 lazy val jacksonDataFormatYamlVersion = "2.11.0"
@@ -85,7 +85,6 @@ lazy val root = (project in file("."))
       "org.jodd" % "jodd-json" % "5.0.12",
       "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonDataFormatYamlVersion
     ),
-//    resolvers += Resolver.mavenLocal,
-    resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository",
+    resolvers += Resolver.mavenLocal,
     useCoursier := false
   )
