@@ -18,10 +18,10 @@ import com.daml.ledger.api.health.{HealthStatus, Healthy}
 import com.daml.ledger.participant.state.kvutils.DamlKvutils._
 import com.daml.ledger.participant.state.kvutils.{
   Envelope,
-  OffsetBuilder,
   KeyValueCommitting,
   KeyValueConsumption,
   KeyValueSubmission,
+  OffsetBuilder,
   Pretty,
   DamlKvutils => Proto
 }
@@ -34,6 +34,7 @@ import com.daml.platform.akkastreams.dispatcher.Dispatcher
 import com.daml.platform.akkastreams.dispatcher.SubSource.OneAfterAnother
 import com.github.blemale.scaffeine.{Cache, Scaffeine}
 import com.google.protobuf.ByteString
+import io.grpc.Status
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
@@ -545,6 +546,15 @@ class FabricParticipantState(
         Envelope.enclose(submission)
       )
       SubmissionResult.Acknowledged
+    })
+
+  override def prune(
+      pruneUpToInclusive: Offset,
+      submissionId: SubmissionId
+  ): CompletionStage[PruningResult] =
+    CompletableFuture.completedFuture[PruningResult]({
+      logger.warn("Pruning not been implemented.")
+      PruningResult.NotPruned(Status.UNIMPLEMENTED)
     })
 
 }
