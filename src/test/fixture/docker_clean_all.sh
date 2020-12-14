@@ -3,13 +3,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-# Stop every running Docker contain
+echo "Stop every running Docker container"
 docker stop $(docker ps -a -q)
 
-# Delete every Docker containers
-# Must be run first because images are attached to containers
-docker rm -f $(docker ps -a -q)
+echo "Delete dangling docker images"
+docker rmi $(docker images -f 'dangling=true' -q)
 
-# Delete every Docker image
-docker rmi -f $(docker images -q)
+echo "Delete Docker containers associated with fabric network"
+docker rm -f $(docker ps -a -q -f network=damlonfabric_ci_default)
+docker rm -f $(docker ps -a -q -f network=damlonfabric_default)
 
+echo "Delete hyperledger fabric images"
+docker rmi -f $(docker images -q "hyperledger/fabric-*")
+
+echo "Delete daml-on-fabric images"
+docker rmi -f $(docker images -q "digitalasset/daml-on-fabric*")
