@@ -111,7 +111,7 @@ jobs:
     resource_class: xlarge
     steps:
       - setup-build
-      - run-build
+#      - run-build
 #      - run-integration-test
       - docker-build-and-publish
             
