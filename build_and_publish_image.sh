@@ -18,11 +18,12 @@ echo "Generate Fabric network config"
 echo "Building CI Docker image"
 ./build_ci.sh
 
-echo "${DOCKERHUB_TOKEN}" | docker login --username "${DOCKERHUB_USERNAME}" --password-stdin
+echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
 
-docker push digitalasset/daml-on-fabric:2.0.0-14-DEC-2020 --build-arg SDK_VERSION=${SDK_VERSION}
+docker push digitalasset/daml-on-fabric:2.0.0-14-DEC-2020
 
 echo "publish daml-on-fabric-chaincode image"
 cd ../../../chaincode-image || exit
 docker build . -t digitalasset/daml-on-fabric-chaincode:2.0.0-DEC-2020
 docker push digitalasset/daml-on-fabric-chaincode:2.0.0-DEC-2020
+docker logout
