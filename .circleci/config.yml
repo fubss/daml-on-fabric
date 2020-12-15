@@ -132,7 +132,7 @@ workflows:
   workflow:
     jobs:
       - build:
-         context: content-trust
+         context: docker-publish
 
   blackduck:
     triggers:

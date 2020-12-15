@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 echo "switch to desired directory"
-cd src/test/fixture
+cd src/test/fixture || exit
 
 export SDK_VERSION=$(cat ../../../build.sbt| egrep -o "sdkVersion.*=.*\".*\"" | perl -pe 's|sdkVersion.*?=.*?"(.*?)"|\1|')
 
@@ -18,9 +18,11 @@ echo "Generate Fabric network config"
 echo "Building CI Docker image"
 ./build_ci.sh
 
+echo "${DOCKER_TOKEN}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
+
 docker push digitalasset/daml-on-fabric:2.0.0-14-DEC-2020 --build-arg SDK_VERSION=${SDK_VERSION}
 
 echo "publish daml-on-fabric-chaincode image"
-cd ../../../chaincode-image
+cd ../../../chaincode-image || exit
 docker build . -t digitalasset/daml-on-fabric-chaincode:2.0.0-DEC-2020
 docker push digitalasset/daml-on-fabric-chaincode:2.0.0-DEC-2020
