@@ -18,7 +18,7 @@ echo "Generate Fabric network config"
 echo "Building CI Docker image"
 ./build_ci.sh
 
-echo "${DOCKER_TOKEN}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
+echo "${DOCKERHUB_TOKEN}" | docker login --username "${DOCKERHUB_USERNAME}" --password-stdin
 
 docker push digitalasset/daml-on-fabric:2.0.0-14-DEC-2020 --build-arg SDK_VERSION=${SDK_VERSION}
 
