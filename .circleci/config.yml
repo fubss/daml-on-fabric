@@ -92,8 +92,8 @@ commands:
             --detect.cleanup.bdio.files=false \
             --detect.report.timeout=1100 \
             --detect.policy.check.fail.on.severities=MAJOR,CRITICAL,BLOCKER \
-#            --detect.docker.image=digitalasset/daml-on-fabric:2.0.0 \
-            --detect.docker.image=digitalasset/daml-on-fabric-chaincode:2.0.0 \
+            --detect.docker.image=digitalasset/daml-on-fabric-chaincode:2.0.0
+      #            --detect.docker.image=digitalasset/daml-on-fabric:2.0.0 \
       - store_artifacts:
           name: Store the Blackduck run artifacts
           path: /home/circleci/blackduck/runs
