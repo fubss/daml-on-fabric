@@ -63,6 +63,20 @@ commands:
             - "~/.m2"
           key: v1-dependencies--{{ checksum "build.sbt" }}
 
+  docker-build-and-publish:
+    steps:
+      - run:
+          name: Docker Build and Publish
+          command: |
+            ls
+            make docker-publish
+      - save_cache:
+          paths:
+            - "~/.ivy2/cache"
+            - "~/.sbt"
+            - "~/.m2"
+          key: v1-dependencies--{{ checksum "build.sbt" }}
+
   blackduck-scan:
     steps:
       - run:
@@ -98,7 +112,8 @@ jobs:
     steps:
       - setup-build
       - run-build
-      - run-integration-test
+#      - run-integration-test
+      - docker-build-and-publish
             
   blackduck-build:
     working_directory: ~/builddir
@@ -117,6 +132,7 @@ workflows:
   workflow:
     jobs:
       - build
+         context: docker
 
   blackduck:
     triggers:
