@@ -65,6 +65,15 @@ commands:
 
   run-local-network:
     steps:
+      - run:
+          name: Add bin directory to PATH
+          command: |
+            echo "export PATH=${CIRCLE_WORKING_DIRECTORY}/bin:$PATH" >> $BASH_ENV
+      - run:
+          name: Install fabric-tools
+          command: |
+            curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.0.0 -s
+
       - run: brew install grpcurl
       - run:
           name: Start fabric network
@@ -126,7 +135,6 @@ jobs:
       TERM: dumb
     steps:
       - checkout
-      - setup-build
       - run-build
             
   blackduck-build:
