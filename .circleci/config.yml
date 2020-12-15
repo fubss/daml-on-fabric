@@ -63,6 +63,24 @@ commands:
             - "~/.m2"
           key: v1-dependencies--{{ checksum "build.sbt" }}
 
+  run-local-network:
+    steps:
+      - run: brew install grpcurl
+      - run:
+          name: Start fabric network
+          command: |
+            cd src/test/fixture
+            ./gen.sh
+            ./fabric.sh down
+            ./fabric.sh clean
+            rm ./client/hfc-key-store/*
+            ./fabric.sh upDetached
+            sleep 20
+            cd ../../../
+            sbt "run --port 6865 --role provision,time,ledger" &
+            echo $! > ledgerapi.pid
+            grpcurl -connect-timeout 150 -v -plaintext localhost:6865 grpc.health.v1.Health.Check
+
   blackduck-scan:
     steps:
       - run:
@@ -99,6 +117,17 @@ jobs:
       - setup-build
       - run-build
       - run-integration-test
+
+  mac-build:
+    macos:
+      xcode: 11.3.0
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+    steps:
+      - checkout
+      - setup-build
+      - run-build
             
   blackduck-build:
     working_directory: ~/builddir
@@ -117,6 +146,7 @@ workflows:
   workflow:
     jobs:
       - build
+      - mac-build
 
   blackduck:
     triggers:
