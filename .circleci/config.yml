@@ -90,7 +90,7 @@ commands:
             --detect.excluded.detector.types=GO_MOD \
             --detect.cleanup=false \
             --detect.cleanup.bdio.files=false \
-            --detect.report.timeout=1100
+            --detect.report.timeout=1100 \
             --detect.policy.check.fail.on.severities=MAJOR,CRITICAL,BLOCKER \
 #            --detect.docker.image=digitalasset/daml-on-fabric:2.0.0 \
             --detect.docker.image=digitalasset/daml-on-fabric-chaincode:2.0.0 \
