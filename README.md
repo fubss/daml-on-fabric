@@ -15,10 +15,10 @@ Docker and Docker-Compose are required to run a Hyperledger Fabric network, and 
 - **docker-compose** version 1.24.0 or greater
 - **docker CE** version 18.09.6 or greater
 - **Java / JDK** version 1.8.0.x
-- **DAML SDK** version 1.7.0
+- **DAML SDK** version 1.8.0
 - **Hyperledger Fabric Tools** version 2.0.0 or greater
 
-NOTE: To avoid issues initializing chaincode on the Fabric network, ensure that the "Enable gRPC FUSE" experimental feature is unchecked in your Docker Desktop client, as noted in https://hyperledger-fabric.readthedocs.io/en/release-2.2/test_network.html#troubleshooting and https://github.com/docker/for-mac/issues/4955
+NOTE: To avoid issues initializing chaincode on the Fabric network, ensure that the "Enable gRPC FUSE" experimental feature is unchecked in your Docker Desktop client, as noted in [Hyperledger Fabric Troubleshooting](https://hyperledger-fabric.readthedocs.io/en/release-2.2/test_network.html#troubleshooting) and [Docker for Mac Known Issue #4955](https://github.com/docker/for-mac/issues/4955)
 
 You can get the latest Hyperledger Fabric Tools by running the following command, and binaries will be downloaded to  <download_directory>/bin
 
