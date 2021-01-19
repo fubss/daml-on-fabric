@@ -324,7 +324,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
           (offset1, _) <- waitForNextUpdate(ps, None)
           _ <- ps
             .submitTransaction(
-              submitterInfo(rt, alice),
+              submitterInfo(alice),
               transactionMeta(rt),
               TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
@@ -345,7 +345,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
 
           result2 <- ps
             .submitTransaction(
-              submitterInfo(rt, alice, commandIds._1),
+              submitterInfo(alice, commandIds._1),
               transactionMeta(rt),
               TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
@@ -355,7 +355,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
 
           result3 <- ps
             .submitTransaction(
-              submitterInfo(rt, alice, commandIds._1),
+              submitterInfo(alice, commandIds._1),
               transactionMeta(rt),
               TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
@@ -365,7 +365,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
 
           result4 <- ps
             .submitTransaction(
-              submitterInfo(rt, alice, commandIds._2),
+              submitterInfo(alice, commandIds._2),
               transactionMeta(rt),
               TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
@@ -398,7 +398,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
           (offset1, _) <- waitForNextUpdate(ps, None)
           result2 <- ps
             .submitTransaction(
-              submitterInfo(rt, alice, "X1"),
+              submitterInfo(alice, "X1"),
               transactionMeta(rt),
               TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
@@ -407,7 +407,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
           (offset2, _) <- waitForNextUpdate(ps, Some(offset1))
           result3 <- ps
             .submitTransaction(
-              submitterInfo(rt, alice, "X2"),
+              submitterInfo(alice, "X2"),
               transactionMeta(rt),
               TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
@@ -441,7 +441,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
           // Submit without allocation
           _ <- ps
             .submitTransaction(
-              submitterInfo(rt, unallocatedParty),
+              submitterInfo(unallocatedParty),
               transactionMeta(rt),
               TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
@@ -468,7 +468,7 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
             .map(_._2.asInstanceOf[PartyAddedToParticipant].party)
           _ <- ps
             .submitTransaction(
-              submitterInfo(rt, party = newParty),
+              submitterInfo(party = newParty),
               transactionMeta(rt),
               TransactionBuilder.EmptySubmitted,
               dummyEstimatedTransactionCost
@@ -694,9 +694,9 @@ abstract class ParticipantStateIntegrationSpecBase(implementationName: String)(
     }
   }
 
-  private def submitterInfo(rt: Timestamp, party: Ref.Party, commandId: String = "X") =
-    SubmitterInfo.withSingleSubmitter(
-      submitter = party,
+  private def submitterInfo(party: Ref.Party, commandId: String = "X") =
+    SubmitterInfo(
+      actAs = List(party),
       applicationId = Ref.LedgerString.assertFromString("tests"),
       commandId = Ref.LedgerString.assertFromString(commandId),
       deduplicateUntil = inTheFuture(10.seconds).toInstant

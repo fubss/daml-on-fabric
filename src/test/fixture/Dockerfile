@@ -23,9 +23,6 @@ WORKDIR /daml-on-fabric
 
 RUN java -jar ledger-api-test-tool.jar --extract
 
-RUN curl -sSL https://get.daml.com/ | sh -s $SDK_VERSION
-ENV PATH=/root/.daml/bin:$PATH
-
 RUN apt-get update && apt-get install -y netcat
 
 CMD /bin/bash -c "chmod +x damlOnFabricStart.sh && ./damlOnFabricStart.sh"
