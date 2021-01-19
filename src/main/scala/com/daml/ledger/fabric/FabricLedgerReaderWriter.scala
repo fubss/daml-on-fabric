@@ -9,7 +9,12 @@ import com.daml.DAMLKVConnector
 import com.daml.api.util.TimeProvider
 import com.daml.ledger.api.health.HealthStatus
 import com.daml.ledger.participant.state.kvutils.Raw
-import com.daml.ledger.participant.state.kvutils.api.{CommitMetadata, LedgerReader, LedgerRecord, LedgerWriter}
+import com.daml.ledger.participant.state.kvutils.api.{
+  CommitMetadata,
+  LedgerReader,
+  LedgerRecord,
+  LedgerWriter
+}
 import com.daml.ledger.participant.state.v1.{LedgerId, Offset, ParticipantId, SubmissionResult}
 import com.daml.ledger.resources.ResourceOwner
 import com.daml.ledger.validator.{SubmissionValidator, ValidatingCommitter}
