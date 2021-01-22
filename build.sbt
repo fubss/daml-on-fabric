@@ -1,14 +1,14 @@
 import Dependencies._
 
 ThisBuild / scalaVersion := "2.12.11"
-ThisBuild / version := "2.2.0"
+ThisBuild / version := "2.2.0.1"
 ThisBuild / organization := "com.daml"
 ThisBuild / organizationName := "Digital Asset. LLC"
 
 //TODO BH: run old fabric main until simplified api is fully wired
 ThisBuild / mainClass := Some("com.daml.DamlOnFabricServer")
 
-lazy val sdkVersion = "1.8.0"
+lazy val sdkVersion = "1.9.0"
 lazy val akkaVersion = "2.6.10"
 lazy val logbackVersion = "1.2.3"
 lazy val jacksonDataFormatYamlVersion = "2.12.0"

@@ -22,7 +22,7 @@ abstract class FabricLedgerIntegrationSpecBase
 
   override val isPersistent: Boolean = false
 
-  val sharedEngine = new Engine(EngineConfig.Dev)
+  val sharedEngine = Engine.StableEngine()
 
   override def participantStateFactory(
       ledgerId: Option[LedgerId],

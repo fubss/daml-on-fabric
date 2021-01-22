@@ -6,6 +6,7 @@ package com.daml
 import java.nio.file.Path
 import java.time.Duration
 import java.util.UUID
+import java.util.concurrent.Executors
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
@@ -32,6 +33,7 @@ import com.daml.platform.configuration.{
 import com.daml.platform.indexer.{IndexerConfig, StandaloneIndexerServer}
 import com.daml.platform.store.dao.events.LfValueTranslation
 import com.daml.ledger.resources.{Resource, ResourceContext, ResourceOwner}
+import com.daml.lf.language.LanguageVersion
 import com.daml.resources.ProgramResource
 import org.slf4j.LoggerFactory
 
@@ -79,7 +81,7 @@ object DamlOnFabricServer extends App {
         implicit val materializer: Materializer = Materializer(actorSystem)
 
         // DAML Engine for transaction validation.
-        val sharedEngine = new Engine(EngineConfig.Stable)
+        val sharedEngine = Engine.StableEngine()
         for {
           // Take ownership of the actor system and materializer so they're cleaned up properly.
           // This is necessary because we can't declare them as implicits in a `for` comprehension.
@@ -111,6 +113,10 @@ object DamlOnFabricServer extends App {
                 Future.sequence(config.archiveFiles.map(uploadDar(_, ledger)))
               ) if config.roleLedger
 
+              servicesExecutionContext <- ResourceOwner
+                .forExecutorService(() => Executors.newWorkStealingPool())
+                .map(ExecutionContext.fromExecutorService)
+                .acquire()
               _ <- new StandaloneIndexerServer(
                 readService = ledger,
                 config = IndexerConfig(config.participantId, config.jdbcUrl, config.startupMode),
@@ -156,7 +162,8 @@ object DamlOnFabricServer extends App {
                 ),
                 metrics = metrics,
                 engine = sharedEngine,
-                lfValueTranslationCache = lfValueTranslationCache
+                lfValueTranslationCache = lfValueTranslationCache,
+                servicesExecutionContext = servicesExecutionContext
               ).acquire() if config.roleLedger
             } yield ()
           }
