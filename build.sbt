@@ -9,10 +9,10 @@ ThisBuild / organizationName := "Digital Asset. LLC"
 ThisBuild / mainClass := Some("com.daml.DamlOnFabricServer")
 
 lazy val sdkVersion = "1.10.0-snapshot.20210209.6265.0.19bf4031"
-lazy val akkaVersion = "2.6.10"
+lazy val akkaVersion = "2.6.12"
 lazy val logbackVersion = "1.2.3"
 lazy val jacksonDataFormatYamlVersion = "2.12.0"
-lazy val protobufVersion = "3.7.1"
+lazy val protobufVersion = "3.14.0"
 lazy val fabricSdkVersion = "2.2.0"
 
 // This task is used by the integration test to detect which version of Ledger API Test Tool to use.
@@ -27,14 +27,16 @@ assemblyMergeStrategy in assembly := {
   // clashing bouncycastle metainfo
   case "META-INF/versions/9/module-info.class" => 
     MergeStrategy.first
-  // Both in protobuf and akka
-  case PathList("google", "protobuf", n) if n.endsWith(".proto") =>
-    MergeStrategy.first
   // In all 2.10 Jackson JARs
   case "module-info.class" =>
     MergeStrategy.discard
   case "META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat" => 
     MergeStrategy.rename
+  case PathList("google", "protobuf", "compiler", n) if n.endsWith(".proto") =>
+    MergeStrategy.first
+  // Both in protobuf and akka
+  case PathList("google", "protobuf", n) if n.endsWith(".proto") =>
+    MergeStrategy.first
   case x =>
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
@@ -77,6 +79,7 @@ lazy val root = (project in file("."))
       "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
       // Protobuf / grpc
       "com.google.protobuf" % "protobuf-java-util" % protobufVersion, //  in current setup: need to ALWAYS use the same version as fabric-sdk-java
+      "com.google.protobuf" % "protobuf-java" % protobufVersion, //  in current setup: need to ALWAYS use the same version as fabric-sdk-java
 
       // Logging and monitoring
       "org.slf4j" % "slf4j-api" % "1.7.26",
