@@ -120,6 +120,7 @@ object DamlOnFabricServer extends App {
               _ <- new StandaloneIndexerServer(
                 readService = ledger,
                 config = IndexerConfig(config.participantId, config.jdbcUrl, config.startupMode),
+                servicesExecutionContext = servicesExecutionContext,
                 metrics = metrics,
                 lfValueTranslationCache = lfValueTranslationCache
               ).acquire() if config.roleLedger
