@@ -6,13 +6,9 @@ package com.daml.ledger.fabric
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 
 import com.daml.DAMLKVConnector
-import com.daml.ledger.participant.state.kvutils.DamlKvutils
+import com.daml.ledger.participant.state.kvutils.{DamlKvutils, Raw}
 import com.daml.ledger.validator.LedgerStateOperations.{Key, Value}
-import com.daml.ledger.validator.{
-  LedgerStateAccess,
-  LedgerStateOperations,
-  NonBatchingLedgerStateOperations
-}
+import com.daml.ledger.validator.{LedgerStateAccess, LedgerStateOperations, NonBatchingLedgerStateOperations}
 import com.google.protobuf.ByteString
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,7 +27,7 @@ final private class FabricLedgerStateOperations(fabricConn: DAMLKVConnector)(
     implicit executionContext: ExecutionContext
 ) extends NonBatchingLedgerStateOperations[Index] {
   override def readState(
-      key: Key
+      key: Raw.StateKey
   )(implicit executionContext: ExecutionContext): Future[Option[Value]] = {
     Future {
       val entryBytes = fabricConn.getValue(key.toByteArray)
@@ -43,14 +39,14 @@ final private class FabricLedgerStateOperations(fabricConn: DAMLKVConnector)(
     }
   }
 
-  override def writeState(key: Key, value: Value)(
+  override def writeState(key: Raw.StateKey,
+                          value: Raw.Envelope)(
       implicit executionContext: ExecutionContext
   ): Future[Unit] =
-    Future(fabricConn.putValue(key.toByteArray, value.toByteArray))
+    Future(fabricConn.putValue(key.bytes.toByteArray, value.bytes.toByteArray))
+      .map(_ => ())
 
-  override def appendToLog(key: Key, value: Value)(
-      implicit executionContext: ExecutionContext
-  ): Future[Index] = ???
+  override def appendToLog(key: Raw.LogEntryId, value: Raw.Envelope)(implicit executionContext: ExecutionContext): Future[Index] = ???
 }
 
 object FabricParticipantState {
