@@ -24,3 +24,4 @@ echo "Generating channel.tx"
 configtxgen -profile FiveOrgsChannel -outputCreateChannelTx ./data/mainchannel.tx -channelID mainchannel
 
 cp ../data/endorsement-policy.yaml ./data
+cp ../data/my-endorsement-policy.yaml ./data

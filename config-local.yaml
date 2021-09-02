@@ -46,7 +46,7 @@
 # explorer: port where the custom fabric explorer will run (it provides information about transactions and blocks)
 #   port: port where the explorer will run.
 # ledgerId: id used by DAML ledger API to synchronize with the network ledger.
-#
+# endorsementPolicy: src/test/fixture/tmp/data/endorsement-policy.yaml
 
 organizations:
   - name: org1.example.com
@@ -88,6 +88,7 @@ organizations:
 channel:
   name: mainchannel
   channelTxFile: src/test/fixture/tmp/data/mainchannel.tx
+  #endorsementPolicy: src/test/fixture/tmp/data/my-endorsement-policy.yaml
   endorsementPolicy: src/test/fixture/tmp/data/endorsement-policy.yaml
   chaincode:
     name: daml_on_fabric
