@@ -26,6 +26,8 @@ peer lifecycle chaincode querycommitted -o orderer.example.com:7050 --tls --cafi
 
 ### 4. Changing endorsement policy
 
+First, find and set PACKAGE_ID for commands below. You can get PACKAGE_ID from peers' logs.
+
 #### 4.1 on Org2 peer
 
 On the peer0.Org2 run this command to approve "strict" endorsement policy for this Org:
@@ -36,7 +38,6 @@ or to approve "soft" endorsement policy you can run this (the difference is the 
 ```
 peer lifecycle chaincode approveformyorg --tls --cafile /etc/hyperledger/msp/tlsca.example.com-cert.pem --channelID mainchannel --name daml_on_fabric --version 1 --sequence 2 --waitForEvent --package-id daml_on_fabric:PACKAGE_ID --signature-policy "OR ('Org1MSP.member','Org2MSP.member')"
 ```
-You can get PACKAGE_ID from peers' logs.
 
 #### 4.2 on Org1 peer
 
